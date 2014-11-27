@@ -1257,27 +1257,31 @@ extension Request: DebugPrintable {
         if let cookieStorage = session.configuration.HTTPCookieStorage {
             if let cookies = cookieStorage.cookiesForURL(URL) as? [NSHTTPCookie] {
                 if !cookies.isEmpty {
-                    let string = cookies.reduce(""){ $0 + "\($1.name)=\($1.value);" }
+                    let string = cookies.reduce(""){ $0 + "\($1.name)=\($1.value ?? String());" }
                     components.append("-b \"\(string.substringToIndex(string.endIndex.predecessor()))\"")
                 }
             }
         }
 
-        for (field, value) in request.allHTTPHeaderFields! {
-            switch field {
-            case "Cookie":
-                continue
-            default:
-                components.append("-H \"\(field): \(value)\"")
+        if request.allHTTPHeaderFields != nil {
+            for (field, value) in request.allHTTPHeaderFields! {
+                switch field {
+                case "Cookie":
+                    continue
+                default:
+                    components.append("-H \"\(field): \(value)\"")
+                }
             }
         }
 
-        for (field, value) in session.configuration.HTTPAdditionalHeaders! {
-            switch field {
-            case "Cookie":
-                continue
-            default:
-                components.append("-H \"\(field): \(value)\"")
+        if session.configuration.HTTPAdditionalHeaders != nil {
+            for (field, value) in session.configuration.HTTPAdditionalHeaders! {
+                switch field {
+                case "Cookie":
+                    continue
+                default:
+                    components.append("-H \"\(field): \(value)\"")
+                }
             }
         }
         
